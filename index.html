@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Свадьба Тумэна и Владиславы</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap">
+<script>document.documentElement.classList.add('js');</script>
+<style>
+/* Layout: пастельные двустворчатые двери на весь экран. По касанию медальона створки распахиваются внутрь, камера приближается, за дверями свет, и проявляется приглашение. Шампань как единственный металлический акцент. */
+:root {
+  --bg: #F3E9E6;
+  --paper: #FBF6F3;
+  --fg: #4B3F47;
+  --muted: #857680;
+  --rose: #C9A0A6;
+  --seal: #A9707A;
+  --sage: #A9B7A6;
+  --lilac: #D9D2E3;
+  --gold: #B8965F;
+  --gold-text: #8A6B3E;
+  --line: #E4D3D0;
+  --f-display: "Cormorant Garamond", "Times New Roman", serif;
+  --f-body: "Jost", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html.js:not(.opened), html.js:not(.opened) body { height: 100%; overflow: hidden; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--f-body); font-size: 16px; line-height: 1.65; font-weight: 300;
+  margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  overflow-x: hidden;
+}
+h1, h2, .display { font-family: var(--f-display); font-weight: 400; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+
+/* ============ ДВЕРИ ============ */
+.stage {
+  position: fixed; inset: 0; z-index: 50; overflow: hidden;
+  background: radial-gradient(70% 60% at 50% 50%, #FFFFFF 0%, #FFF4EA 30%, #F6E3E0 65%, #EBD4D3 100%);
+  transition: opacity 1.6s ease .1s, visibility 0s linear 1.8s;
+}
+html:not(.js) .stage { display: none; }
+.stage.leaving { opacity: 0; visibility: hidden; pointer-events: none; }
+.stage::after { /* бумажное зерно поверх всего */
+  content: ""; position: absolute; inset: 0; opacity: .45; pointer-events: none; mix-blend-mode: multiply; z-index: 3;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .42  0 0 0 0 .44  0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.rays {
+  position: absolute; left: 50%; top: 50%; width: 170vmax; height: 170vmax; margin: -85vmax 0 0 -85vmax; opacity: 0; pointer-events: none;
+  background: repeating-conic-gradient(from 0deg, rgba(255,245,225,0) 0 7deg, rgba(235,205,150,.38) 7deg 9deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 55%); mask-image: radial-gradient(circle, #000 0%, transparent 55%);
+}
+.stage.opening .rays { opacity: 1; transition: opacity 2s ease .4s; animation: spin 40s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.doors-wrap {
+  position: absolute; inset: 0; z-index: 2; perspective: 1900px; perspective-origin: 50% 50%;
+  transition: transform 3.2s cubic-bezier(.45,0,.2,1);
+}
+.stage.opening .doors-wrap { transform: scale(1.3); }
+.door {
+  position: absolute; top: 0; bottom: 0; width: 50%;
+  transition: transform 2.7s cubic-bezier(.6,.02,.22,1);
+  box-shadow: inset 0 0 60px rgba(130,80,90,.14);
+}
+.door.l { left: 0; transform-origin: 0 50%; background: linear-gradient(90deg, #F4E2E0 0%, #EBD3D1 55%, #E1C5C5 100%); }
+.door.r { right: 0; transform-origin: 100% 50%; background: linear-gradient(270deg, #F4E2E0 0%, #EBD3D1 55%, #E1C5C5 100%); }
+.stage.opening .door.l { transform: rotateY(106deg); }
+.stage.opening .door.r { transform: rotateY(-106deg); }
+.door::after { /* тень на створке при повороте */
+  content: ""; position: absolute; inset: 0; background: rgba(70,35,48,.55); opacity: 0; pointer-events: none; transition: opacity 2.7s ease;
+}
+.stage.opening .door::after { opacity: 1; }
+.door.l { border-right: 1px solid rgba(110,60,72,.25); }
+.door.r { border-left: 1px solid rgba(110,60,72,.25); }
+
+.panel {
+  position: absolute; border: 1px solid rgba(184,150,95,.7);
+  box-shadow: inset 0 0 0 5px rgba(255,255,255,.22), inset 0 0 0 6px rgba(184,150,95,.28), inset 0 3px 18px rgba(130,80,90,.16), 0 1px 0 rgba(255,255,255,.5);
+  background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0));
+}
+.panel.up { top: 7%; height: 54%; }
+.panel.lo { top: 66%; height: 26%; }
+.door.l .panel { left: 9%; right: 6%; }
+.door.r .panel { right: 9%; left: 6%; }
+.door.l .panel.up { border-radius: 130px 0 0 0; }
+.door.r .panel.up { border-radius: 0 130px 0 0; }
+.handle {
+  position: absolute; top: 50%; width: 9px; height: 112px; margin-top: -56px; border-radius: 6px;
+  background: linear-gradient(90deg, #F5E3B8, #B8965F 55%, #8C6D3F);
+  box-shadow: 0 3px 6px rgba(80,35,48,.35), inset 0 0 0 1px rgba(255,255,255,.25);
+}
+.door.l .handle { right: 60px; }
+.door.r .handle { left: 60px; }
+
+.stage-top, .stage-hint {
+  position: absolute; left: 0; right: 0; z-index: 4; text-align: center; color: var(--gold-text); pointer-events: none;
+  transition: opacity .6s ease;
+}
+.stage-top { top: max(12%, calc(env(safe-area-inset-top, 0px) + 40px)); font-family: var(--f-display); font-style: italic; font-size: clamp(22px, 6vw, 28px); letter-spacing: .04em; color: var(--fg); }
+.stage-top small { display: block; font-family: var(--f-body); font-style: normal; font-size: 11px; letter-spacing: .34em; text-transform: uppercase; color: var(--gold-text); margin-top: 8px; }
+.stage-hint { bottom: max(12%, calc(env(safe-area-inset-bottom, 0px) + 40px)); font-size: 12px; letter-spacing: .32em; text-transform: uppercase; font-weight: 400; animation: breathe 2.8s ease-in-out infinite; }
+@keyframes breathe { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+.stage.breaking .stage-hint, .stage.breaking .stage-top { opacity: 0; animation: none; }
+
+.medal {
+  position: absolute; left: 50%; top: 50%; z-index: 5; width: clamp(84px, 24vw, 100px); aspect-ratio: 1; border: 0; padding: 0; cursor: pointer; border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(from 200deg, #F3E2B8, #B8965F, #F6E8C4, #A8844E, #F3E2B8);
+  filter: drop-shadow(0 6px 6px rgba(80,35,48,.35));
+  transition: transform .9s cubic-bezier(.4,0,.2,1), opacity .8s ease; -webkit-tap-highlight-color: transparent;
+}
+.medal:hover { transform: translate(-50%, -50%) scale(1.06); }
+.medal:active { transform: translate(-50%, -50%) scale(.96); }
+.medal:focus-visible { outline: 2px solid var(--fg); outline-offset: 8px; }
+.medal-in {
+  position: absolute; inset: 6px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFFBF6, #F2E1DE 80%);
+  display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 5px rgba(130,80,90,.25);
+}
+.medal-in::before { content: ""; position: absolute; inset: 5px; border-radius: 50%; border: 1px solid rgba(184,150,95,.6); }
+.medal-in span { font-family: var(--f-display); font-style: italic; font-size: clamp(26px, 7.6vw, 32px); color: var(--seal); position: relative; letter-spacing: .02em; }
+.medal::before { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 1px solid var(--gold); opacity: 0; animation: ring 2.8s ease-out infinite; pointer-events: none; }
+@keyframes ring { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.9); opacity: 0; } }
+.stage.breaking .medal { transform: translate(-50%, -50%) rotate(200deg) scale(1.6); opacity: 0; pointer-events: none; }
+.stage.breaking .medal::before { animation: none; }
+.glow {
+  position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; z-index: 6; border-radius: 50%; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle, rgba(255,250,240,.95), rgba(240,215,170,.55) 40%, transparent 70%);
+}
+.stage.breaking .glow { animation: glow 2s ease-out forwards; }
+@keyframes glow { 0% { transform: scale(.4); opacity: 0; } 20% { opacity: 1; } 100% { transform: scale(18); opacity: 0; } }
+#burst { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 7; pointer-events: none; }
+
+/* ============ ПРИГЛАШЕНИЕ ============ */
+#petals { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.js:not(.opened) main, .js:not(.opened) #petals { visibility: hidden; }
+main { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; padding-block: max(48px, env(safe-area-inset-top, 0px)) max(72px, env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 72px; }
+.opened main { animation: fadeIn 1.4s ease-out both; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.eyebrow { font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--gold-text); font-weight: 400; }
+.orn { display: flex; align-items: center; gap: 14px; color: var(--gold); }
+.orn::before, .orn::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
+.orn::after { background: linear-gradient(270deg, transparent, var(--gold)); }
+.orn i { width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg); }
+
+.hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; }
+.mono { width: 128px; height: 128px; color: var(--gold); }
+.mono circle { fill: none; stroke: currentColor; stroke-width: 1; }
+.mono circle.inner { stroke-width: .5; }
+.mono text { font-family: var(--f-display); font-style: italic; fill: var(--fg); font-size: 31px; }
+.hero h1 { font-size: clamp(50px, 14vw, 90px); line-height: 1; font-weight: 300; font-style: italic; max-width: 100%; }
+.hero h1 span { display: block; color: var(--fg); }
+.hero h1 span.amp { font-size: .42em; color: var(--gold); line-height: 1.5; font-style: normal; }
+.hero .when { font-size: 13px; letter-spacing: .34em; text-transform: uppercase; color: var(--gold-text); font-weight: 400; }
+.hero .lead { font-family: var(--f-display); font-style: italic; font-size: 22px; line-height: 1.4; color: var(--muted); max-width: 26ch; }
+
+.opened .mono circle { stroke-dasharray: 340; animation: draw 2.4s ease-out .3s both; }
+.opened .mono circle.inner { animation-delay: .8s; }
+.opened .mono text { animation: fadeIn 1.2s ease-out 1.5s both; }
+.opened .hero h1 span { animation: rise 1.4s cubic-bezier(.2,.7,.2,1) both; }
+.opened .hero h1 span:nth-child(1) { animation-delay: .9s; }
+.opened .hero h1 span:nth-child(2) { animation-delay: 1.2s; }
+.opened .hero h1 span:nth-child(3) { animation-delay: 1.5s; }
+.opened .hero .when { animation: fadeIn 1.4s ease-out 2.2s both; }
+.opened .hero .lead { animation: fadeIn 1.4s ease-out 2.5s both; }
+.opened .hero .orn-hero { animation: fadeIn 1.4s ease-out 2.7s both; }
+@keyframes draw { from { stroke-dashoffset: 340; } to { stroke-dashoffset: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(22px); filter: blur(8px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .opened .hero h1 span:not(.amp) {
+    background-image: linear-gradient(105deg, var(--fg) 40%, #D6B57A 50%, var(--fg) 60%);
+    background-size: 260% 100%; background-position: 0% 0;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+    animation: rise 1.4s cubic-bezier(.2,.7,.2,1) both, shine 2.6s ease-in-out both;
+  }
+  .opened .hero h1 span:nth-child(1) { animation-delay: .9s, 2.4s; }
+  .opened .hero h1 span:nth-child(3) { animation-delay: 1.5s, 3.0s; }
+}
+@keyframes shine { from { background-position: 0% 0; } to { background-position: 100% 0; } }
+
+.count { display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1px solid var(--line); }
+.count div { padding: 18px 4px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.count div + div { border-left: 1px solid var(--line); }
+.count b { font-family: var(--f-display); font-weight: 400; font-size: clamp(32px, 9vw, 46px); line-height: 1; font-variant-numeric: tabular-nums; color: var(--seal); }
+.count small { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+.count-done { text-align: center; font-family: var(--f-display); font-style: italic; font-size: 30px; color: var(--seal); padding-block: 18px; border-block: 1px solid var(--line); }
+.count-cap { text-align: center; font-size: 12px; letter-spacing: .26em; text-transform: uppercase; color: var(--muted); margin-top: 12px; }
+
+section { display: flex; flex-direction: column; gap: 22px; }
+section h2 { font-size: clamp(34px, 9vw, 46px); line-height: 1.08; font-weight: 300; font-style: italic; }
+.invite p { font-size: 17px; max-width: 46ch; }
+.invite p + p { margin-top: 14px; }
+.place { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin: 0; }
+.place dt { font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.place dd { margin: 0; font-family: var(--f-display); font-size: 26px; line-height: 1.2; }
+.place dd small { display: block; font-family: var(--f-body); font-size: 14px; color: var(--muted); margin-top: 6px; font-weight: 300; line-height: 1.5; }
+.place > div { min-width: 0; }
+.place > div.wide { grid-column: 1 / -1; }
+
+.soon { border: 1px solid var(--line); background: var(--paper); padding: 28px 24px; text-align: center; position: relative; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.soon::before { content: ""; position: absolute; inset: 6px; border: 1px solid rgba(184,150,95,.35); pointer-events: none; }
+.soon .display { font-style: italic; font-size: 28px; color: var(--seal); }
+.soon p { color: var(--muted); font-size: 15px; max-width: 36ch; }
+
+.swatches { display: flex; flex-wrap: wrap; gap: 18px; }
+.swatches figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 74px; }
+.swatches i { display: block; width: 58px; height: 58px; border-radius: 50%; border: 1px solid var(--line); box-shadow: inset 0 -4px 8px rgba(120,70,80,.08); }
+.swatches figcaption { font-size: 12px; color: var(--muted); text-align: center; line-height: 1.3; }
+.hint { font-size: 14px; color: var(--muted); max-width: 48ch; }
+
+form { background: var(--paper); border: 1px solid var(--line); padding: 26px; display: flex; flex-direction: column; gap: 18px; position: relative; }
+form::before { content: ""; position: absolute; inset: 6px; border: 1px solid rgba(184,150,95,.35); pointer-events: none; }
+label, legend { font-size: 13px; letter-spacing: .04em; color: var(--muted); display: block; margin-bottom: 6px; padding: 0; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+input[type="text"], input[type="number"], textarea {
+  width: 100%; font: inherit; font-size: 16px; color: var(--fg); background: #FFFDFB;
+  border: 1px solid var(--line); padding: 11px 12px; border-radius: 2px;
+}
+textarea { resize: vertical; min-height: 76px; }
+input:focus-visible, textarea:focus-visible, button:focus-visible, .choice input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+.choices { display: flex; gap: 10px; flex-wrap: wrap; }
+.choice { position: relative; flex: 1 1 140px; margin: 0; }
+.choice input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.choice span { display: block; text-align: center; padding: 11px 12px; border: 1px solid var(--line); background: #FFFDFB; color: var(--fg); font-size: 15px; transition: background .25s, color .25s, border-color .25s; }
+.choice input:checked + span { background: var(--seal); border-color: var(--seal); color: #FFF6F6; }
+button.primary { font: inherit; font-weight: 400; font-size: 14px; letter-spacing: .2em; text-transform: uppercase; cursor: pointer; background: var(--seal); color: #FFF6F6; border: 0; padding: 15px 20px; border-radius: 2px; }
+button.primary:hover { filter: brightness(1.07); }
+button.ghost { font: inherit; font-size: 14px; cursor: pointer; background: none; color: var(--gold-text); border: 1px solid var(--gold); padding: 9px 14px; border-radius: 2px; }
+.result { display: flex; flex-direction: column; gap: 10px; }
+.result textarea { min-height: 120px; }
+.status { font-size: 14px; color: var(--seal); min-height: 1.4em; }
+footer { text-align: center; color: var(--muted); font-size: 14px; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+footer .display { font-size: 34px; font-style: italic; color: var(--gold-text); }
+
+@media (max-width: 440px) {
+  .place { grid-template-columns: 1fr; gap: 22px; }
+  form { padding: 20px; }
+  .door.l .handle { right: 52px; }
+  .door.r .handle { left: 52px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-hint, .medal::before { animation: none; }
+  html { scroll-behavior: auto; }
+}
+.sound-btn {
+  position: fixed; z-index: 60; width: 46px; height: 46px; padding: 0; border-radius: 50%; cursor: pointer;
+  right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--gold); background: rgba(251,246,243,.94); color: var(--gold-text);
+  box-shadow: 0 4px 14px rgba(110,60,72,.2); -webkit-tap-highlight-color: transparent;
+}
+.sound-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.sound-btn .slash { display: none; }
+.sound-btn.off .slash { display: block; }
+.sound-btn.off .waves { display: none; }
+html:not(.opened) .sound-btn { display: none; }
+</style>
+
+<div class="stage" id="stage">
+  <div class="rays" aria-hidden="true"></div>
+  <div class="doors-wrap" aria-hidden="true">
+    <div class="door l"><div class="panel up"></div><div class="panel lo"></div><span class="handle"></span></div>
+    <div class="door r"><div class="panel up"></div><div class="panel lo"></div><span class="handle"></span></div>
+  </div>
+  <p class="stage-top">Тумэн и Владислава<small>Свадебное приглашение</small></p>
+  <button class="medal" id="seal" type="button" aria-label="Открыть двери и посмотреть приглашение">
+    <span class="medal-in"><span>Т·В</span></span>
+  </button>
+  <p class="stage-hint">Коснитесь, чтобы войти</p>
+  <div class="glow"></div>
+  <canvas id="burst" aria-hidden="true"></canvas>
+</div>
+
+<canvas id="petals" aria-hidden="true"></canvas>
+
+<button class="sound-btn" id="sound-btn" type="button" aria-label="Включить или выключить музыку" aria-pressed="false">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/>
+    <path class="waves" d="M15.5 9a4.5 4.5 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/>
+    <path class="slash" d="M16 9.5l5 5M21 9.5l-5 5"/>
+  </svg>
+</button>
+
+<main>
+  <header class="hero">
+    <svg class="mono" viewBox="0 0 120 120" aria-hidden="true">
+      <circle cx="60" cy="60" r="54"/>
+      <circle class="inner" cx="60" cy="60" r="48"/>
+      <text x="60" y="69" text-anchor="middle">Т · В</text>
+    </svg>
+    <h1><span>Тумэн</span><span class="amp">и</span><span>Владислава</span></h1>
+    <p class="when">10 июля 2027</p>
+    <p class="lead">Мы женимся и хотим провести этот день вместе с вами</p>
+    <div class="orn orn-hero" style="width:100%;max-width:260px"><i></i></div>
+  </header>
+
+  <div>
+    <div id="count-wrap"></div>
+    <p class="count-cap">до нашего дня</p>
+  </div>
+
+  <section class="invite">
+    <p class="eyebrow">Приглашение</p>
+    <h2>Дорогие друзья и родные</h2>
+    <div>
+      <p>В нашей жизни скоро случится самый важный день, и нам хочется разделить его с теми, кто нам дорог.</p>
+      <p>Приходите посмотреть, как мы скажем «да», выпить за нас и потанцевать до темноты.</p>
+    </div>
+  </section>
+
+  <div class="orn"><i></i></div>
+
+  <section>
+    <p class="eyebrow">Когда и где</p>
+    <dl class="place">
+      <div class="wide">
+        <dt>Дата</dt>
+        <dd>10 июля 2027, суббота</dd>
+      </div>
+      <div>
+        <dt>Время</dt>
+        <dd>Уточняется<small>Сообщим, как только всё согласуем</small></dd>
+      </div>
+      <div>
+        <dt>Место</dt>
+        <dd>Уточняется<small>Адрес и схему проезда пришлём отдельно</small></dd>
+      </div>
+    </dl>
+  </section>
+
+  <section>
+    <p class="eyebrow">Программа дня</p>
+    <h2>Как пройдёт праздник</h2>
+    <div class="soon">
+      <span class="display">Скоро расскажем</span>
+      <p>Программа ещё уточняется. Как только она будет готова, вы увидите её здесь.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Дресс-код</p>
+    <h2>Нежные пастельные оттенки</h2>
+    <p class="hint">Платья, костюмы и аксессуары в этой гамме красиво лягут на общие фотографии.</p>
+    <div class="swatches">
+      <figure><i style="background:#E8C9C9"></i><figcaption>Пудровый розовый</figcaption></figure>
+      <figure><i style="background:#A9B7A6"></i><figcaption>Шалфей</figcaption></figure>
+      <figure><i style="background:#D4CCE0"></i><figcaption>Лавандовый</figcaption></figure>
+      <figure><i style="background:#F7F1EA"></i><figcaption>Айвори</figcaption></figure>
+      <figure><i style="background:#CBB38A"></i><figcaption>Шампань</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="rsvp">
+    <p class="eyebrow">Подтвердите присутствие</p>
+    <h2>Придёте?</h2>
+    <form id="rsvp-form" autocomplete="off">
+      <div>
+        <label for="g-name">Ваше имя и фамилия</label>
+        <input id="g-name" type="text" required placeholder="Например, Ирина Петрова">
+      </div>
+      <fieldset>
+        <legend>Ваш ответ</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="answer" value="yes" checked><span>С радостью приду</span></label>
+          <label class="choice"><input type="radio" name="answer" value="no"><span>Не получится</span></label>
+        </div>
+      </fieldset>
+      <div id="extra-fields" style="display:flex;flex-direction:column;gap:18px">
+        <div>
+          <label for="g-count">Сколько вас человек</label>
+          <input id="g-count" type="number" min="1" max="6" value="1" inputmode="numeric">
+        </div>
+        <div>
+          <label for="g-food">Пожелания по меню (аллергии, вегетарианское)</label>
+          <textarea id="g-food" placeholder="Если есть, напишите здесь"></textarea>
+        </div>
+      </div>
+      <button class="primary" type="submit">Подготовить ответ</button>
+      <div class="result" id="result" hidden>
+        <label for="out">Скопируйте текст и отправьте его Тумэну или Владиславе в любой мессенджер</label>
+        <textarea id="out" readonly></textarea>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <button class="ghost" type="button" id="copy">Скопировать</button>
+          <span class="status" id="status" role="status"></span>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <footer>
+    <span class="display">Т · В</span>
+    <p>С любовью ждём вас 10 июля</p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root = document.documentElement;
+  var stage = document.getElementById('stage');
+  var seal = document.getElementById('seal');
+  var isOpen = false;
+
+  /* ---------- двери ---------- */
+  var burst = document.getElementById('burst'), bctx = burst.getContext('2d'), parts = [], burstOn = false;
+  function sizeBurst() {
+    var r = window.devicePixelRatio || 1;
+    burst.width = stage.clientWidth * r; burst.height = stage.clientHeight * r;
+    bctx.setTransform(r, 0, 0, r, 0, 0);
+  }
+  function spawnBurst() {
+    sizeBurst();
+    var sr = seal.getBoundingClientRect(), br = burst.getBoundingClientRect();
+    var cx = sr.left + sr.width / 2 - br.left, cy = sr.top + sr.height / 2 - br.top;
+    var cols = ['#E7C98F', '#F2DDB0', '#D9A9B0', '#FFFFFF', '#C9D4C5', '#D9D2E3'];
+    for (var i = 0; i < 80; i++) {
+      var a = Math.random() * Math.PI * 2, sp = 1.5 + Math.random() * 6;
+      parts.push({ x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.2, r: 1.2 + Math.random() * 3,
+        life: 1, dec: 0.006 + Math.random() * 0.01, c: cols[(Math.random() * cols.length) | 0], petal: Math.random() < 0.3, rot: Math.random() * 6 });
+    }
+    burstOn = true; stepBurst();
+  }
+  function stepBurst() {
+    if (!burstOn) return;
+    bctx.clearRect(0, 0, burst.clientWidth, burst.clientHeight);
+    var alive = 0;
+    parts.forEach(function (p) {
+      if (p.life <= 0) return;
+      alive++;
+      p.vy += 0.05; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.life -= p.dec; p.rot += 0.05;
+      bctx.globalAlpha = Math.max(p.life, 0); bctx.fillStyle = p.c;
+      bctx.save(); bctx.translate(p.x, p.y); bctx.rotate(p.rot); bctx.beginPath();
+      if (p.petal) bctx.ellipse(0, 0, p.r * 2.2, p.r * 1.2, 0, 0, 6.283); else bctx.arc(0, 0, p.r, 0, 6.283);
+      bctx.fill(); bctx.restore();
+    });
+    if (alive) requestAnimationFrame(stepBurst); else { burstOn = false; bctx.clearRect(0, 0, burst.clientWidth, burst.clientHeight); }
+  }
+  function reveal() {
+    root.classList.add('opened');
+    window.scrollTo(0, 0);
+    startPetals();
+    setTimeout(function () { stage.hidden = true; }, 2100);
+  }
+  function openDoors() {
+    if (isOpen) return; isOpen = true;
+    if (reduce) { stage.hidden = true; root.classList.add('opened'); window.scrollTo(0, 0); Snd.music(); return; }
+    stage.classList.add('breaking');
+    spawnBurst();
+    setTimeout(function () { stage.classList.add('opening'); Snd.doors(); }, 700);
+    setTimeout(function () { stage.classList.add('leaving'); reveal(); Snd.music(); }, 3000);
+  }
+  /* ---------- звук (синтез в браузере, файлов не нужно) ---------- */
+  var Snd = (function () {
+    var ac = null, master, musicBus, sfxBus, noiseBuf, muted = false, musicOn = false, timer = null, nextT = 0, step = 0;
+    var EIGHTH = 0.46;
+    var PROG = [[48, 52, 55, 59], [45, 52, 55, 60], [41, 48, 52, 57], [43, 50, 55, 59]];
+    var PAT = [0, 1, 2, 3, 2, 1, 3, -1];
+    function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+    function init() {
+      if (ac) return true;
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return false;
+      try { ac = new C(); } catch (e) { ac = null; return false; }
+      master = ac.createGain(); master.gain.value = 0.9; master.connect(ac.destination);
+      var len = Math.floor(ac.sampleRate * 2.2), ib = ac.createBuffer(2, len, ac.sampleRate), c, i;
+      for (c = 0; c < 2; c++) { var d = ib.getChannelData(c); for (i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+      var conv = ac.createConvolver(); conv.buffer = ib;
+      var wet = ac.createGain(); wet.gain.value = 0.38; conv.connect(wet); wet.connect(master);
+      sfxBus = ac.createGain(); sfxBus.connect(master); sfxBus.connect(conv);
+      musicBus = ac.createGain(); musicBus.gain.value = 0; musicBus.connect(master); musicBus.connect(conv);
+      var nl = ac.sampleRate * 3; noiseBuf = ac.createBuffer(1, nl, ac.sampleRate);
+      var nd = noiseBuf.getChannelData(0); for (i = 0; i < nl; i++) nd[i] = Math.random() * 2 - 1;
+      document.addEventListener('visibilitychange', function () { if (!ac) return; if (document.hidden) ac.suspend(); else ac.resume(); });
+      return true;
+    }
+    function bell(bus, f, t, vol, dur) {
+      [[1, 1], [2.01, 0.34], [3.5, 0.12], [5.4, 0.05]].forEach(function (p) {
+        var o = ac.createOscillator(), g = ac.createGain();
+        o.type = 'sine'; o.frequency.value = f * p[0];
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(vol * p[1], t + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur / Math.sqrt(p[0]));
+        o.connect(g); g.connect(bus); o.start(t); o.stop(t + dur / Math.sqrt(p[0]) + 0.05);
+      });
+    }
+    function pad(bus, f, t, dur, vol) {
+      [-5, 5].forEach(function (det) {
+        var o = ac.createOscillator(), g = ac.createGain();
+        o.type = 'sine'; o.frequency.value = f; o.detune.value = det;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(vol, t + 1.3);
+        g.gain.linearRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 0.05);
+      });
+    }
+    function play(s, t) {
+      var chord = PROG[Math.floor(s / 8) % PROG.length], i = s % 8;
+      if (i === 0) chord.forEach(function (m) { pad(musicBus, mtof(m), t, EIGHTH * 8 + 1.2, 0.03); });
+      var idx = PAT[i];
+      if (idx >= 0) bell(musicBus, mtof(chord[idx] + 24), t, 0.075, 2.4);
+      if (i === 4 && Math.floor(s / 8) % 2 === 1) bell(musicBus, mtof(chord[3] + 36), t, 0.04, 2.8);
+    }
+    function sched() { while (nextT < ac.currentTime + 0.7) { play(step, nextT); nextT += EIGHTH; step++; } }
+    return {
+      start: function () { if (init()) ac.resume(); },
+      chime: function () {
+        if (!ac) return; var t = ac.currentTime + 0.02;
+        bell(sfxBus, mtof(76), t, 0.16, 3.2); bell(sfxBus, mtof(83), t + 0.12, 0.13, 3.2); bell(sfxBus, mtof(88), t + 0.26, 0.1, 3.4);
+      },
+      doors: function () {
+        if (!ac) return; var t = ac.currentTime + 0.02;
+        var n = ac.createBufferSource(); n.buffer = noiseBuf;
+        var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.8;
+        bp.frequency.setValueAtTime(180, t); bp.frequency.exponentialRampToValueAtTime(1100, t + 2.6);
+        var ng = ac.createGain();
+        ng.gain.setValueAtTime(0.0001, t); ng.gain.linearRampToValueAtTime(0.2, t + 1.1); ng.gain.linearRampToValueAtTime(0.0001, t + 2.9);
+        n.connect(bp); bp.connect(ng); ng.connect(sfxBus); n.start(t); n.stop(t + 3);
+        var r = ac.createOscillator(), rg = ac.createGain();
+        r.type = 'sine'; r.frequency.setValueAtTime(95, t); r.frequency.exponentialRampToValueAtTime(48, t + 2.7);
+        rg.gain.setValueAtTime(0.0001, t); rg.gain.linearRampToValueAtTime(0.16, t + 0.8); rg.gain.linearRampToValueAtTime(0.0001, t + 2.8);
+        r.connect(rg); rg.connect(sfxBus); r.start(t); r.stop(t + 2.9);
+        var k = ac.createOscillator(), kf = ac.createBiquadFilter(), kg = ac.createGain();
+        k.type = 'sawtooth'; k.frequency.setValueAtTime(96, t); k.frequency.linearRampToValueAtTime(132, t + 1.2); k.frequency.linearRampToValueAtTime(100, t + 2.6);
+        kf.type = 'lowpass'; kf.frequency.value = 520;
+        kg.gain.setValueAtTime(0.0001, t); kg.gain.linearRampToValueAtTime(0.035, t + 0.9); kg.gain.linearRampToValueAtTime(0.0001, t + 2.7);
+        k.connect(kf); kf.connect(kg); kg.connect(sfxBus); k.start(t); k.stop(t + 2.8);
+      },
+      music: function () {
+        if (!ac || musicOn) return; musicOn = true; ac.resume();
+        var now = ac.currentTime;
+        musicBus.gain.cancelScheduledValues(now); musicBus.gain.setValueAtTime(0.0001, now); musicBus.gain.linearRampToValueAtTime(1, now + 4);
+        nextT = now + 0.3; step = 0; timer = setInterval(sched, 120); sched();
+      },
+      mute: function (v) { muted = v; if (ac) master.gain.setTargetAtTime(v ? 0 : 0.9, ac.currentTime, 0.15); },
+      muted: function () { return muted; },
+      ok: function () { return !!ac; }
+    };
+  })();
+  var soundBtn = document.getElementById('sound-btn');
+  soundBtn.addEventListener('click', function () {
+    var m = !Snd.muted(); Snd.mute(m);
+    soundBtn.classList.toggle('off', m); soundBtn.setAttribute('aria-pressed', m ? 'true' : 'false');
+  });
+  seal.addEventListener('click', function () { Snd.start(); Snd.chime(); openDoors(); });
+  window.addEventListener('resize', function () { if (!isOpen) sizeBurst(); });
+  sizeBurst();
+
+  /* ---------- обратный отсчёт ---------- */
+  var target = new Date(2027, 6, 10, 0, 0, 0);
+  var wrap = document.getElementById('count-wrap');
+  function pad(n) { return String(n).length < 2 ? '0' + n : String(n); }
+  function plural(n, a, b, c) {
+    var m = n % 100, d = n % 10;
+    if (m > 10 && m < 20) return c;
+    if (d === 1) return a;
+    if (d > 1 && d < 5) return b;
+    return c;
+  }
+  function tick() {
+    var diff = target - new Date();
+    if (diff <= 0) { wrap.innerHTML = '<p class="count-done">Наш день настал</p>'; return; }
+    var s = Math.floor(diff / 1000);
+    var d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+    wrap.innerHTML =
+      '<div class="count">' +
+      '<div><b>' + d + '</b><small>' + plural(d, 'день', 'дня', 'дней') + '</small></div>' +
+      '<div><b>' + pad(h) + '</b><small>' + plural(h, 'час', 'часа', 'часов') + '</small></div>' +
+      '<div><b>' + pad(m) + '</b><small>' + plural(m, 'минута', 'минуты', 'минут') + '</small></div>' +
+      '<div><b>' + pad(sec) + '</b><small>' + plural(sec, 'секунда', 'секунды', 'секунд') + '</small></div>' +
+      '</div>';
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* ---------- ответ гостя ---------- */
+  var form = document.getElementById('rsvp-form');
+  var extra = document.getElementById('extra-fields');
+  var result = document.getElementById('result');
+  var out = document.getElementById('out');
+  var status = document.getElementById('status');
+  function answer() { return form.elements.answer.value; }
+  Array.prototype.forEach.call(form.elements.answer, function (r) {
+    r.addEventListener('change', function () { extra.style.display = answer() === 'no' ? 'none' : 'flex'; });
+  });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = document.getElementById('g-name').value.trim();
+    var text;
+    if (answer() === 'yes') {
+      var n = document.getElementById('g-count').value || '1';
+      var food = document.getElementById('g-food').value.trim();
+      text = 'Привет! Это ' + name + '. Подтверждаю, что буду на вашей свадьбе 10 июля. Гостей: ' + n + '.' + (food ? ' Пожелания по меню: ' + food + '.' : '') + ' Спасибо за приглашение!';
+    } else {
+      text = 'Привет! Это ' + name + '. Очень жаль, но прийти на вашу свадьбу 10 июля не получится. Поздравляю вас и желаю самого счастливого дня!';
+    }
+    out.value = text; result.hidden = false; status.textContent = '';
+    out.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+  document.getElementById('copy').addEventListener('click', function () {
+    function fallback() { out.focus(); out.select(); status.textContent = 'Текст выделен, скопируйте его через меню телефона'; }
+    try {
+      navigator.clipboard.writeText(out.value).then(function () { status.textContent = 'Скопировано'; }, fallback);
+    } catch (err) { fallback(); }
+  });
+
+  /* ---------- лепестки ---------- */
+  var cv = document.getElementById('petals'), ctx = cv.getContext('2d'), W = 0, H = 0, petals = [], petalsOn = false, t = 0;
+  function resize() {
+    var r = window.devicePixelRatio || 1;
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * r; cv.height = H * r; ctx.setTransform(r, 0, 0, r, 0, 0);
+  }
+  function make(initial) {
+    return { x: Math.random() * W, y: initial ? Math.random() * H : -20, s: 5 + Math.random() * 7, vy: 0.22 + Math.random() * 0.4,
+      sw: 0.4 + Math.random() * 0.8, ph: Math.random() * 6.28, rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.02,
+      a: 0.3 + Math.random() * 0.35, c: Math.random() < 0.7 ? '#D9A9B0' : '#C9D4C5' };
+  }
+  function frame() {
+    t += 0.01;
+    ctx.clearRect(0, 0, W, H);
+    petals.forEach(function (p, idx) {
+      p.y += p.vy; p.x += Math.sin(t * p.sw + p.ph) * 0.5; p.rot += p.vr;
+      if (p.y > H + 20) petals[idx] = make(false);
+      ctx.save(); ctx.globalAlpha = p.a; ctx.fillStyle = p.c; ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.beginPath(); ctx.ellipse(0, 0, p.s, p.s * 0.55, 0, 0, 6.283); ctx.fill(); ctx.restore();
+    });
+    requestAnimationFrame(frame);
+  }
+  function startPetals() {
+    if (reduce || petalsOn) return;
+    petalsOn = true; resize();
+    for (var i = 0; i < 16; i++) petals.push(make(true));
+    window.addEventListener('resize', resize);
+    frame();
+  }
+})();
+</script>
+
+</html>
